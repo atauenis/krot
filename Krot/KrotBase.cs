@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using KrotAPI;
 
 namespace Krot
 {
@@ -23,7 +24,7 @@ namespace Krot
 				Console.WriteLine("Loading GUI...");
 
 				GuiWrapper = new PluginWrapper(@"..\..\..\KrotWinUI\bin\Debug\KrotWinUI.dll", "KrotWinUI.KrotWinUI");
-				KrotAPI.HostCallback hcb = (string Command, Dictionary<string, object> Arguments, out object Result) =>
+				HostCallback hcb = (string Command, Dictionary<string, object> Arguments, out object Result) =>
 				{
 					return HostEar(Command, Arguments, out Result);
 				};

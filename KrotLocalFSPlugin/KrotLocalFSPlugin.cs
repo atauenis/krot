@@ -92,14 +92,14 @@ namespace KrotLocalFSPlugin
 			}
 		}
 
-	    public dynamic Callback { set; private get; }
+		public HostCallback Callback { set; private get; }
 
 	    /// <summary>
 		/// Посылка комманды хосту (Krot.exe)
 		/// </summary>
 		public int HostCmd(string Command, Dictionary<string, object> Arguments, out object Result)
 	    {
-		    return Callback(Command, Arguments, out Result); /*Host.DynamicInvoke(Command, Arguments);*/
+		    return Callback(Command, Arguments, out Result);
 	    }
 
 	    public Delegate Host { get; set; }

@@ -36,10 +36,12 @@ namespace KrotWinUI
 			{
 				PluginCore.HostCmd("fs000findnext", new Dictionary<string, object> {{"Enumeration", Enumeracija}},
 					out NextItemInfo);
-				dynamic fd = new FindData();
+				FindData fd = new FindData();
 				if (NextItemInfo != null)
-					fd = NextItemInfo;
-				listBox1.Items.Add(fd.ToString());
+				{
+					fd = (FindData)NextItemInfo;
+					listBox1.Items.Add(fd.FileName);
+				}
 			}
 		}
 

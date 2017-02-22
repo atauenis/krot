@@ -45,7 +45,7 @@ namespace KrotWinUI
 		    return 0;
 	    }
 
-	    public dynamic Callback { set; private get; }
+		public HostCallback Callback { set; private get; }
 	    public Delegate Host { get; set; }
 	    public Delegate Progress { get; set; }
 	    public Delegate Log { get; set; }

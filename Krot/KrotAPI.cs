@@ -1,7 +1,5 @@
 ﻿/* API for Krot File Manager plug-in modules.
- * Version: 0.1.1702.0
- * This file can be shared between Krot source code, and plug-in modules' source code.
- * To stay current with latest changes in the Krot API, don't forget to update it from Krot's Git.
+ * Version: 0.1.1702.1
  */
 using System;
 using System.Collections.Generic;
@@ -11,19 +9,20 @@ using System.Text;
 
 namespace KrotAPI
 {
-//todo: здесь будут размещены интерфейсы и стандартные энумерации для плагинов.
+	//интерфейсы и стандартные энумерации для плагинов.
 
 	public interface IKrotPlugin
 	{
 		string GetName();
 
 		//функции без возврата данных
-		int Talk(string CmdName, Dictionary<String, object> Arguments);
+		//int Talk(string CmdName, Dictionary<String, object> Arguments);
+		//скорее всего надо похерить за ненадобностью.
 
 		//функции, возращающие данные
 		int Talk(string CmdName, Dictionary<String, Object> Arguments, ref object Result);
 
-		dynamic Callback { set; }
+		HostCallback Callback { set; }
 
 		//обратные связи с хостом
 		/// <summary>
@@ -46,12 +45,19 @@ namespace KrotAPI
 		Delegate Request{ get; set; }
 	}
 
+	/// <summary>
+	/// Host's callback delegate (can be used to send a command to host)
+	/// </summary>
+	/// <param name="Command"></param>
+	/// <param name="Arguments"></param>
+	/// <param name="Result"></param>
+	/// <returns></returns>
 	public delegate int HostCallback(string Command, Dictionary<String,Object> Arguments, out object Result);
 
 	/// <summary>
 	/// File find result data (file's passport)
 	/// </summary>
-	struct FindData
+	public struct FindData
 	{
 		public FileAttributes FileAttributes;
 		public DateTime CreationTime;

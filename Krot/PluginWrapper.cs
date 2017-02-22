@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using KrotAPI;
 
 namespace Krot
 {
@@ -11,7 +12,7 @@ namespace Krot
 	/// </summary>
 	class PluginWrapper
 	{
-		public dynamic Plugin;
+		public IKrotPlugin Plugin;
 		public Type PluginType;
 		public Assembly PluginAssembly;
 
@@ -40,17 +41,16 @@ namespace Krot
 			}
 			ProgressChangeHandler = PrgChng; //undone: возможно, заглушка это плохо.
 		}
-		
-		dynamic LoadPlugin(Assembly asm)
+
+		IKrotPlugin LoadPlugin(Assembly asm)
 		{
 			foreach (Type type in asm.GetTypes())
 			{
-				//Console.WriteLine(type.ToString());
 				if (type.GetInterface("KrotAPI.IKrotPlugin") != null)
 				{
 					PluginType = type;
 					dynamic inst = Activator.CreateInstance(type);
-					KrotAPI.IKrotPlugin inst2 = inst as KrotAPI.IKrotPlugin;
+					IKrotPlugin inst2 = inst as IKrotPlugin;
 					if (inst2 == null) return inst;
 					Console.WriteLine("Есть привязка к стандартному API.");
 					return inst2;
