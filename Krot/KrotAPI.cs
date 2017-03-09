@@ -1,5 +1,5 @@
 ﻿/* API for Krot File Manager plug-in modules.
- * Version: 0.1.1702.1
+ * Version: 0.1.1703
  */
 using System;
 using System.Collections.Generic;
@@ -44,6 +44,17 @@ namespace KrotAPI
 		/// </summary>
 		Delegate Request{ get; set; }
 	}
+
+	public interface IUIPlugin : IKrotPlugin {
+		//интерфейсы для плагинов GUI.
+		//плагины GUI вшиваются в тело Krot.exe, замена производится при компляции.
+
+		/// <summary>
+		/// Show the main window.
+		/// </summary>
+		void Show();
+	}
+
 
 	/// <summary>
 	/// Host's callback delegate (can be used to send a command to host)

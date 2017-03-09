@@ -1,4 +1,5 @@
 ﻿/* Krot file manager. Local filesystem plug-in module.
+ * Будет включён в Krot.exe как только код загрузки DLL точно будет стабилен.
  */
 using System;
 using System.Collections;

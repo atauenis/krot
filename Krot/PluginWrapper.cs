@@ -42,6 +42,11 @@ namespace Krot
 			ProgressChangeHandler = PrgChng; //undone: возможно, заглушка это плохо.
 		}
 
+		public PluginWrapper(IKrotPlugin KrotPlugin) {
+			Console.WriteLine("Loading internal plugin: " + KrotPlugin.ToString());
+			Plugin = KrotPlugin;
+		}
+
 		IKrotPlugin LoadPlugin(Assembly asm)
 		{
 			foreach (Type type in asm.GetTypes())

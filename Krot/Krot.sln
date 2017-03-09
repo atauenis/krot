@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Krot", "Krot.csproj", "{835F4EC3-E3F1-4619-8392-8B851FAD2AED}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KrotWinUI", "..\KrotWinUI\KrotWinUI.csproj", "{A6BC5E09-F132-4DE5-B117-DAFBCDFF1D3D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KrotLocalFSPlugin", "..\KrotLocalFSPlugin\KrotLocalFSPlugin.csproj", "{5E5BEADC-3870-4F5A-B2CB-5F5CD5A00EBC}"
 EndProject
@@ -25,10 +23,6 @@ Global
 		{835F4EC3-E3F1-4619-8392-8B851FAD2AED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{835F4EC3-E3F1-4619-8392-8B851FAD2AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{835F4EC3-E3F1-4619-8392-8B851FAD2AED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6BC5E09-F132-4DE5-B117-DAFBCDFF1D3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6BC5E09-F132-4DE5-B117-DAFBCDFF1D3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6BC5E09-F132-4DE5-B117-DAFBCDFF1D3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6BC5E09-F132-4DE5-B117-DAFBCDFF1D3D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5E5BEADC-3870-4F5A-B2CB-5F5CD5A00EBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E5BEADC-3870-4F5A-B2CB-5F5CD5A00EBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E5BEADC-3870-4F5A-B2CB-5F5CD5A00EBC}.Release|Any CPU.ActiveCfg = Release|Any CPU

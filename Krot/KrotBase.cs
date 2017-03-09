@@ -11,10 +11,9 @@ namespace Krot
 {
 	public static class KrotBase
 	{
-		private static PluginWrapper GuiWrapper; //обёртка к UI
-
 		private static object nothing = null;
 
+		[STAThread]
 		private static void Main(string[] args) //the EXE's entry point
 		{
 			Console.Title = "Krot console - version 0.0.0pre";
@@ -22,28 +21,21 @@ namespace Krot
 			try
 			{
 				Console.WriteLine("Loading GUI...");
-
-				GuiWrapper = new PluginWrapper(@"..\..\..\KrotWinUI\bin\Debug\KrotWinUI.dll", "KrotWinUI.KrotWinUI");
+				
 				HostCallback hcb = (string Command, Dictionary<string, object> Arguments, out object Result) =>
 				{
 					return HostEar(Command, Arguments, out Result);
 				};
-				GuiWrapper.Plugin.Callback = hcb;
 
-				PluginManager.UIPlugin = GuiWrapper;
-
-				//Console.WriteLine("Где-то здесь должен инициализироваться гуи");
-				//PluginManager.Launch("uiinit",  new Dictionary<string, object>());
-
-				//Dictionary<string, object> UiArgDic = new Dictionary<string, object> {{"Имя агрумента", "значение"}};
-				//PluginManager.UIPlugin.SendCommand("krEcho", UiArgDic);
+				PluginManager.UIPlugin = new PluginWrapper(new XwtUI());
+				PluginManager.UIPlugin.Plugin.Callback = hcb;
 
 				Console.WriteLine("Load first FS...");
 
 				Kernel.krLoadFS(@"..\..\..\KrotLocalFSPlugin\bin\Debug\KrotLocalFSPlugin.dll", "KrotLocalFSPlugin.KrotLocalFSPlugin");
 				PluginManager.FSPlugins[0].Plugin.Callback = hcb;
 
-				PluginManager.Launch("uiInit",null);
+				PluginManager.Launch("uiShow", null);
 
 				Console.WriteLine("Запущена консоль");
 				while(true) CmdPrompt();
@@ -63,11 +55,12 @@ namespace Krot
 		/// <summary>
 		/// Show the command line prompt, and run the entered command.
 		/// </summary>
-		private static void CmdPrompt()
+		public static void CmdPrompt()
 		{
 			Console.Write("Krot console>");
 			string UserCommand = Console.ReadLine();
-			if (UserCommand == "") return;
+			if (UserCommand == "") CmdPrompt();
+			if (UserCommand == "return") { Console.WriteLine("Console has been stopped, and GUI is active again."); return; };
 			RunCmd(UserCommand);
 		}
 

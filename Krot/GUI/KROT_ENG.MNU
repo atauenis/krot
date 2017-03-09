@@ -1,0 +1,17 @@
+﻿POPUP,_File
+MENUITEM,DEBUG CONSOLE,uiDebugConsole
+MENUITEM,_Change Attributes...,uiSetAttrib
+MENUITEM,Edit Comment...,ui2700
+MENUITEM,Quit,krQuit
+ENDPOPUP
+POPUP,_Mark
+ENDPOPUP
+POPUP,_Tools
+ENDPOPUP
+POPUP,_View
+ENDPOPUP
+POPUP,_Options
+ENDPOPUP
+POPUP,_Help
+MENUITEM,_About,uiAbout
+ENDPOPUP
