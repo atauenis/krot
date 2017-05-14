@@ -51,12 +51,18 @@ namespace Krot
 					Show();
 					return 0;
 				case "uiAbout":
-					Xwt.MessageDialog.ShowMessage("Файловый менеджер Крот.\nВерсия 0.1.1703.\n\nИспользуйте консоль для отладки ядра и плагинов Крота.");
+					MessageDialog.ShowMessage("Файловый менеджер Крот.\nВерсия "+KrotBase.KrotVersion+".\n\nИспользуйте консоль для отладки ядра и плагинов Крота.");
 					return 0;
 				case "uiDebugConsole":
-					Console.WriteLine("Debug Console is started. The GUI has temporarly frozen (due to XWT limitations).");
+					Console.WriteLine("\nDebug Console is started. The GUI has temporarly frozen (due to XWT limitations).");
 					Console.WriteLine("Use 'return' command to return to GUI.");
 					KrotBase.CmdPrompt();
+					return 0;
+				//case "uiSetPanelLayout":
+				case "uiSetPanel":
+					//temporary code below. todo: add panel configuration
+					mw.Panels.Add(new KPanel(0));
+					mw.Content = mw.Panels[0];
 					return 0;
 			}
 			return 1;

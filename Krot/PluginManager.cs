@@ -56,6 +56,9 @@ namespace Krot
 							Result = null;
 							return 0;
 							break;
+						case "krVer":
+							Result = "Krot version " + KrotBase.KrotVersion;
+							return 0;
 						case "krQuit":
 							//krQuit. Exit from Krot.
 							Environment.Exit(0);

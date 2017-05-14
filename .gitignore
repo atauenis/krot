@@ -123,3 +123,4 @@ debian/files
 
 # Developers' private files, such as shortcuts and шпаргалки
 Krot - Ярлык.lnk
+/Krot/GUI/ListViewPlus.cs

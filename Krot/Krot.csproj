@@ -44,6 +44,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\DrawScript.cs" />
+    <Compile Include="GUI\KFileList.cs" />
+    <Compile Include="GUI\KPanel.cs" />
     <Compile Include="GUI\MenuLoader.cs" />
     <Compile Include="KrotAPI.cs" />
     <Compile Include="KrotBase.cs" />

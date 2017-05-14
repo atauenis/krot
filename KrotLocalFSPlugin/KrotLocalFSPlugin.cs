@@ -42,7 +42,7 @@ namespace KrotLocalFSPlugin
 		{
 			Dictionary<String, Object> dic = new Dictionary<string, object> { { "From", "LocalFS" }, { "Command", CmdName }, { "Args", Arguments } };
 			object nothing;
-			HostCmd("krDebugPrint", dic, out nothing);
+			//HostCmd("krDebugPrint", dic, out nothing);
 
 			switch (CmdName.ToLower())
 			{
@@ -143,6 +143,7 @@ namespace KrotLocalFSPlugin
 
 	    private int fsFindNext(Dictionary<String, Object> Arguments, ref object Result)
 	    {
+			if (Arguments == null) return 2;
 			object o = Arguments["Enumeration"];
 			if (!(o is IEnumerator))
 				throw new ArgumentException("Тут нужна энумерация файлов от fsFindFirst");

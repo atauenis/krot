@@ -15,12 +15,15 @@ namespace Krot.GUI
 	{
 		public new Menu MainMenu = new Menu();
 
+		public List<KPanel> Panels = new List<KPanel>();
+
 		public MainWindow() {
 			Title = "Krot";
 
-			//Size = new Size(500, 500);
+			Size = new Size(500, 500); //временно
 
-			Content = new Label("GUI находится в разработке, используйте консоль.\nHelp'a нет. :)");
+			//Content = new Label("GUI находится в разработке, используйте консоль.\nHelp'a нет. :)");
+			//Content = new KPanel();
 
 			base.MainMenu = this.MainMenu;
 			PopulateMainMenu();
@@ -105,7 +108,7 @@ namespace Krot.GUI
 			public MenuItemType Type;
 			public string Title;
 			public string Tag;
-			//todo: public Xwt.Drawing.Image Icon; //Xwt? А как же android/ios версии? Подумать!
+			//public Xwt.Drawing.Image Icon;
 		}
 
 		public enum MenuItemType {

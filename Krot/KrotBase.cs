@@ -12,11 +12,12 @@ namespace Krot
 	public static class KrotBase
 	{
 		private static object nothing = null;
+		public const string KrotVersion = "0.1.1705"; //todo: replace with version from project properties
 
 		[STAThread]
 		private static void Main(string[] args) //the EXE's entry point
 		{
-			Console.Title = "Krot console - version 0.0.0pre";
+			Console.Title = "Krot console - version "+KrotVersion;
 			Console.WriteLine("Krot has been launched.");
 			try
 			{
@@ -35,6 +36,7 @@ namespace Krot
 				Kernel.krLoadFS(@"..\..\..\KrotLocalFSPlugin\bin\Debug\KrotLocalFSPlugin.dll", "KrotLocalFSPlugin.KrotLocalFSPlugin");
 				PluginManager.FSPlugins[0].Plugin.Callback = hcb;
 
+				PluginManager.Launch("uiSetPanel", null); //временный код
 				PluginManager.Launch("uiShow", null);
 
 				Console.WriteLine("Запущена консоль");
@@ -48,6 +50,7 @@ namespace Krot
 			{
 				Console.WriteLine("Krot is disposing.");
 			}
+			Console.Title += " [Exiting]";
 			Console.WriteLine("That's all, press any key to exit.");
 			Console.ReadKey();
 		}
@@ -60,8 +63,9 @@ namespace Krot
 			Console.Write("Krot console>");
 			string UserCommand = Console.ReadLine();
 			if (UserCommand == "") CmdPrompt();
-			if (UserCommand == "return") { Console.WriteLine("Console has been stopped, and GUI is active again."); return; };
+			if (UserCommand == "return") { Console.WriteLine("Console has been stopped, and the GUI is now active again."); return; };
 			RunCmd(UserCommand);
+			CmdPrompt();
 		}
 
 		/// <summary>
@@ -78,7 +82,9 @@ namespace Krot
 			{
 				cmdarg.Add(parts[i],parts[i+1]);
 			}
-			PluginManager.Launch(parts[0], cmdarg);
+			object result;
+			PluginManager.Launch(parts[0], cmdarg, out result);
+			Console.WriteLine(result);
 		}
 
 		/// <summary>
