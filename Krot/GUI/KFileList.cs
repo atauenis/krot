@@ -160,7 +160,7 @@ namespace Krot.GUI
 		/// <param name="fd"></param>
 		protected void DrawFile(FindData? fd) {
 			if (fd == null) return;
-			GUI.Add(new DrawScript.dsTextLayout() { Point0 = new Point(0, Ypos), TextLayout = new TextLayout() { Text = fd.Value.FileName } });
+			GUI.Add(new DrawScript.dsTextLayout(fd.Value.FileName,0,Ypos));
 			Ypos += Yesize;
 		}
 

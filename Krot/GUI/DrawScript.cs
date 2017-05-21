@@ -1,14 +1,7 @@
 ﻿/* Krot file manager. The XWT user interface.
  * Описания рисовальных действий для функций отрисовки по скриптам - ПЕРЕВЕСТИ с деревенского на англ.
  */
-
-/* The F Commander
- * Описания рисовальных действий для функций отрисовки по скриптам - ПЕРЕВЕСТИ с деревенского на англ.
- * (C) The File Commander Team - https://github.com/atauenis/fcmd
- * (C) 2016, Alexander Tauenis (atauenis@yandex.ru)
- * Contributors should place own signs here.
- */
-
+ 
 using System;
 using Xwt;
 using Xwt.Drawing;
@@ -26,7 +19,6 @@ namespace Krot.GUI
 	static class DrawScript
 	{
 		#region Elements for database
-		//todo: made more usable. this version requires tons of badly readable code
 		public abstract class GuiElement
 		{
 			public object tag;
@@ -44,6 +36,18 @@ namespace Krot.GUI
 		{
 			public TextLayout TextLayout;
 			public Point Point0;
+			public dsTextLayout(int Xpos, int Ypos, TextLayout textLayout) {
+				Point0 = new Point(Xpos, Ypos);
+				TextLayout = textLayout;
+			}
+			public dsTextLayout(string Text, int Xpos, int Ypos, params TextAttribute[] Attribs) {
+				Point0 = new Point(Xpos, Ypos);
+				TextLayout = new TextLayout();
+				TextLayout.Text = Text;
+				foreach(TextAttribute ta in Attribs) {
+					TextLayout.AddAttribute(ta);
+				}
+			}
 		}
 
 		public class dsFill : GuiElement
@@ -54,22 +58,35 @@ namespace Krot.GUI
 		public class dsLineTo : GuiElement
 		{
 			public Point Point;
+			public dsLineTo(double X, double Y) {
+				Point = new Point(X, Y);
+			}
 		}
 
 		public class dsMoveTo : GuiElement
 		{
 			public Point Point;
+			public dsMoveTo(double X, double Y) {
+				Point = new Point(X, Y);
+			}
 		}
 
 		public class dsRectangle : GuiElement
 		{
 			public Point Point0;
 			public Size Size;
+			public dsRectangle(double Xpos, double Ypos, double Vsize, double Hsize) {
+				Point0 = new Point(Xpos, Ypos);
+				Size = new Size(Hsize, Vsize);
+			}
 		}
 
 		public class dsRotate : GuiElement
 		{
 			public double Angle;
+			public dsRotate(double angle) {
+				Angle = angle;
+			}
 		}
 
 		public class dsRoundRectangle : GuiElement //may be deprecated in current xwts, разобраться!
@@ -82,17 +99,27 @@ namespace Krot.GUI
 		public class dsSetColor : GuiElement
 		{
 			public Color Colour;
+			public dsSetColor (Color colour) {
+				Colour = colour;
+			}
 		}
 
 		public class dsSetLineDash : GuiElement
 		{
 			public double Offset;
 			public double[] Pattern;
+			public dsSetLineDash(double offset, params double[] pattern) {
+				Offset = offset;
+				Pattern = pattern;
+			}
 		}
 
 		public class dsSetLineWidth : GuiElement
 		{
 			public double Width;
+			public dsSetLineWidth(double width) {
+				Width = width;
+			}
 		}
 
 		public class dsStroke : GuiElement
