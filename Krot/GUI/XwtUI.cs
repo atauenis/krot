@@ -41,6 +41,7 @@ namespace Krot
 
 		public void Show() {
 			mw.Show();
+			mw.Panels[0].KFL.PopulateList();
 			Application.Run();
 		}
 

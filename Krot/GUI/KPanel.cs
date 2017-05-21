@@ -11,7 +11,7 @@ namespace Krot.GUI
 {
 	class KPanel : Widget
 	{
-		KFileList KFL;// = new KFileList(fsid);
+		public KFileList KFL;// = new KFileList(fsid);
 		public KPanel(int fsid) {
 			KFL = new GUI.KFileList(fsid);
 			Content = KFL;

@@ -20,9 +20,13 @@ namespace Krot.GUI
 		private List<DrawScript.GuiElement> GUI = new List<DrawScript.GuiElement>(); //draw sript
 		public VScrollbar VScroll = new VScrollbar();
 
+		public int Pointer; //pointer position
+		public int[] SelectedItems; //numbers of items that are under pointer
+
 		protected int Ypos = 0; //V position in pixels
-		protected int Ycapacity = 10; //V capacity in rows
 		protected int Yesize = 16; //element V size in pixels
+		protected int Ycapacity = 10; //V capacity in rows
+		protected int Ystart = 0; //first row to show
 
 		protected int FSID;
 		protected PluginWrapper FS;
@@ -38,29 +42,52 @@ namespace Krot.GUI
 
 		public KFileList(int fsid) {
 			this.BoundsChanged += KFileList_BoundsChanged;
+			this.ButtonPressed += KFileList_ButtonPressed;
+			VScroll.ValueChanged += VScroll_ValueChanged;
 
 			FSID = fsid;
 			FS = PluginManager.FSPlugins[FSID];
 
-			FileCache.Clear();
-			Draw();
+			Dictionary<string, object> args = new Dictionary<string, object>();
+			args.Add("To", @"D:\сашины\");
+			int retn = FS.SendCommand("fsCwd", args);
+
+			AddChild(VScroll);
 		}
 
-		protected void Draw() {
-			//здесь будут функции по расчёту и отрисовке виджета
-
-			GUI.Clear();
-			Ypos = 0;
-
+		public void PopulateList() {
+			FileCache.Clear();
 			CachePosition = 0;
 			for (int i = 0; i < Ycapacity; i++)
 			{
 				if (i == 0) { DrawFile(RqFirst()); continue; }
 				FindData? nextfile = RqNext();
 				if (nextfile == null) break;
-				DrawFile(nextfile);
+				//DrawFile(nextfile);
 			}
-			
+			Draw();
+
+			PopulateCache();
+			#if DEBUG
+			Console.WriteLine("\nКэш набит на {0} элементов.", FileCache.Count());
+			#endif
+		}
+
+
+		protected void Draw() {
+			//здесь будут функции по расчёту и отрисовке виджета
+			GUI.Clear();
+			Ypos = 0;
+
+			for (int i = Ystart; i < Ystart + Ycapacity; i++)
+			{
+				if(FileCache.Count > i)
+				DrawFile(FileCache[i]);
+				if(i == Pointer) {
+					//undone
+				}
+			}
+
 			QueueDraw();
 		}
 		
@@ -117,6 +144,16 @@ namespace Krot.GUI
 			}
 		}
 
+		//populate cache in the background
+		protected void PopulateCache() {
+			bool eschyoest = true;
+			while(eschyoest) {
+				eschyoest = (RqNext() != null);
+			}
+			
+			VScroll.UpperValue = FileCache.Count() - Ycapacity;
+		}
+
 		/// <summary>
 		/// Draw the FS entry on the screen
 		/// </summary>
@@ -142,9 +179,28 @@ namespace Krot.GUI
 			base.OnDraw(ctx, dirtyRect);
 		}
 
+		private void KFileList_ButtonPressed(object sender, ButtonEventArgs e)
+		{
+			switch (e.Button) {
+				case PointerButton.Left:
+					Pointer = Ystart + (int)(e.Y / Yesize);
+					return;
+			}
+		}
+
 		protected void KFileList_BoundsChanged(object sender, EventArgs e)
 		{
+			Rectangle vsr = new Rectangle(new Point(Size.Width - VScroll.Size.Width, 0), new Size(VScroll.Size.Width, Size.Height));
+			SetChildBounds(VScroll,vsr);
+			VScroll.UpperValue = FileCache.Count() - Ycapacity;
+
 			Ycapacity = (int) (Size.Height / Yesize);
+			Draw();
+		}
+		
+		private void VScroll_ValueChanged(object sender, EventArgs e)
+		{
+			Ystart = (int)VScroll.Value;
 			Draw();
 		}
 	}
