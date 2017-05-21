@@ -15,18 +15,20 @@ namespace Krot.GUI
 	/// <summary>
 	/// List of filesystem entries, very powerful and very fast
 	/// </summary>
-	class KFileList : Canvas
+	internal class KFileList : Canvas
 	{
 		private List<DrawScript.GuiElement> GUI = new List<DrawScript.GuiElement>(); //draw sript
 		public VScrollbar VScroll = new VScrollbar();
 
 		public int Pointer; //pointer position
-		public int[] SelectedItems; //numbers of items that are under pointer
+		public List<int> SelectedItems = new List<int>(); //numbers of items that are under pointer
+		public List<ColumnInfo> Columns = new List<ColumnInfo>();
 
 		protected int Ypos = 0; //V position in pixels
 		protected int Yesize = 16; //element V size in pixels
 		protected int Ycapacity = 10; //V capacity in rows
 		protected int Ystart = 0; //first row to show
+		protected int Ytop = 16; //start of file list (and end of header)
 
 		protected int FSID;
 		protected PluginWrapper FS;
@@ -47,11 +49,17 @@ namespace Krot.GUI
 			this.KeyPressed += KFileList_KeyPressed;
 			VScroll.ValueChanged += VScroll_ValueChanged;
 
+			Columns.Add(new ColumnInfo() { Title="¶", Content = "krot.Icon", Width = 16 });
+			Columns.Add(new ColumnInfo() { Title="Файлово наме", Content="fs.FileName", Width=0, Expand = true});
+			Columns.Add(new ColumnInfo() { Title="Размер", Content="fs.Size", Width=100});
+			Columns.Add(new ColumnInfo() { Title="Дата", Content="fs.Date", Width=100});
+			Columns.Add(new ColumnInfo() { Title="Атрибуты", Content="fs.Atribs", Width=100});
+
 			FSID = fsid;
 			FS = PluginManager.FSPlugins[FSID];
 
 			Dictionary<string, object> args = new Dictionary<string, object>();
-			args.Add("To", @"D:\сашины\");
+			args.Add("To", @"D:\");
 			int retn = FS.SendCommand("fsCwd", args);
 
 			AddChild(VScroll);
@@ -59,41 +67,68 @@ namespace Krot.GUI
 			SetFocus();
 		}
 
+		/// <summary>
+		/// Initialize cache, load and draw first portion of inodes
+		/// </summary>
 		public void PopulateList() {
+			Ystart = 0;
+			VScroll.Value = 0;
+
 			FileCache.Clear();
 			CachePosition = 0;
 			for (int i = 0; i < Ycapacity; i++)
 			{
-				if (i == 0) { DrawFile(RqFirst()); continue; }
+				if (i == 0) { RqFirst(); continue; }
 				FindData? nextfile = RqNext();
 				if (nextfile == null) break;
-				//DrawFile(nextfile);
+				//Application.MainLoop.DispatchPendingEvents();
 			}
 			Draw();
 
-			PopulateCache();
+			PopulateCache(); //should be moved to a background thread
 			#if DEBUG
 			Console.WriteLine("\nКэш набит на {0} элементов.", FileCache.Count());
 			#endif
 		}
 
-
+		/// <summary>
+		/// Create draw script and paint it
+		/// </summary>
 		protected void Draw() {
-			//здесь будут функции по расчёту и отрисовке виджета
 			GUI.Clear();
-			Ypos = 0;
+			Ypos = Ytop;
 
+			//draw columns
+			//установка точных размеров распирающего столбца
+			int fatcol = -1, rightsize = 0, leftsize=0;
+			for(int col = 0;col<Columns.Count;col++) {
+				if (Columns[col].Expand == true) { fatcol = col; break; }
+				leftsize += Columns[col].Width;
+			}
+			if (fatcol > -1)
+			{
+				rightsize = (int)Size.Width - leftsize;
+				for(int otcol = fatcol+1; otcol<=Columns.Count-1;otcol++) {
+					//otcol=other columns
+					rightsize -= Columns[otcol].Width;
+				}
+			
+				ColumnInfo tolsty = Columns[fatcol];
+				tolsty.Width = rightsize;
+				Columns[fatcol] = tolsty;
+			}
+			//отрисовка заголовков столбцов
+			int xposc = 0;
+			foreach(ColumnInfo ci in Columns) {
+				GUI.Add(new DrawScript.dsTextLayout(ci.Title, xposc, 0));
+				xposc += ci.Width;
+			}
+
+			//draw files and directories
 			for (int i = Ystart; i < Ystart + Ycapacity; i++)
 			{
 				if(FileCache.Count > i)
-				if (i == Pointer)
-				{
-						GUI.Add(new DrawScript.dsRectangle(0, Ypos, Yesize, Size.Width - VScroll.Size.Width));
-						GUI.Add(new DrawScript.dsSetLineWidth(1));
-						GUI.Add(new DrawScript.dsSetLineDash(0, 1, 1));
-						GUI.Add(new DrawScript.dsStroke());
-				}
-				DrawFile(FileCache[i]);
+				DrawFile(FileCache[i], i == Pointer, SelectedItems.Contains(i));
 			}
 
 			QueueDraw();
@@ -152,7 +187,10 @@ namespace Krot.GUI
 			}
 		}
 
-		//populate cache in the background
+		//
+		/// <summary>
+		/// Populate remaining part of inode cache in the background
+		/// </summary>
 		protected void PopulateCache() {
 			bool eschyoest = true;
 			while(eschyoest) {
@@ -166,9 +204,20 @@ namespace Krot.GUI
 		/// Draw the FS entry on the screen
 		/// </summary>
 		/// <param name="fd"></param>
-		protected void DrawFile(FindData? fd) {
+		protected void DrawFile(FindData? fd, bool pointed, bool selected) {
 			if (fd == null) return;
-			GUI.Add(new DrawScript.dsTextLayout(fd.Value.FileName,0,Ypos));
+
+			if(pointed) {
+				GUI.Add(new DrawScript.dsRectangle(0, Ypos, Yesize, Size.Width - VScroll.Size.Width));
+				GUI.Add(new DrawScript.dsSetLineWidth(1));
+				GUI.Add(new DrawScript.dsSetLineDash(0, 1, 1));
+				GUI.Add(new DrawScript.dsStroke());
+			}
+			//UNDONE: поддержка колонок сделана только по заголовкам, код запихивания контента в туда не сделан
+			if(selected)
+				GUI.Add(new DrawScript.dsTextLayout(fd.Value.FileName, 0, Ypos, new ColorTextAttribute() { Color = Colors.Red, StartIndex = 0, Count = fd.Value.FileName.Length}));
+			else
+				GUI.Add(new DrawScript.dsTextLayout(fd.Value.FileName, 0, Ypos));
 			Ypos += Yesize;
 		}
 
@@ -182,6 +231,13 @@ namespace Krot.GUI
 				VScroll.Value = To;
 			}
 			VScroll_ValueChanged(null, null);
+		}
+
+		/// <summary>
+		/// Gets number of the item that is under the mouse pointer
+		/// </summary>
+		protected int GetItemNo(double MousX, double MousY) {
+			return Ystart + (int)((MousY - Ytop) / Yesize);
 		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
@@ -201,9 +257,35 @@ namespace Krot.GUI
 		#region Event handlers
 		private void KFileList_ButtonPressed(object sender, ButtonEventArgs e)
 		{
+			//todo: add possibility to configure reaction on button presses with Settings
+
+			if(e.MultiplePress > 1) {
+				//DOUBLE CLICK : open dir/file
+				Pointer = GetItemNo(e.X,e.Y);
+				FindData curfile = FileCache[Pointer];
+				if (curfile.FileAttributes == System.IO.FileAttributes.Directory)
+				{
+					Dictionary<string, object> args = new Dictionary<string, object>();
+					args.Add("To", curfile.FullPath);
+					int retn = FS.SendCommand("fsCwd", args);
+					PopulateList();
+					Draw();
+				}else
+				{ }
+				return;
+			}
+
+			//SINGLE CLICK
 			switch (e.Button) {
-				case PointerButton.Left:
-					Pointer = Ystart + (int)(e.Y / Yesize);
+				case PointerButton.Left: //LEFT: set pointer
+					Pointer = GetItemNo(e.X,e.Y);
+					break;
+				case PointerButton.Right: //RIGHT: set pointer & switch selection
+					//todo: добавить настройку: выбирать по правой кнопке или выбирать+ставить курсор
+					Pointer = GetItemNo(e.X, e.Y);
+					int itemno = GetItemNo(e.X,e.Y);
+					if (SelectedItems.Contains(itemno)) SelectedItems.Remove(itemno);
+					else SelectedItems.Add(itemno);
 					break;
 			}
 			Draw();
@@ -254,11 +336,11 @@ namespace Krot.GUI
 
 		protected void KFileList_BoundsChanged(object sender, EventArgs e)
 		{
-			Rectangle vsr = new Rectangle(new Point(Size.Width - VScroll.Size.Width, 0), new Size(VScroll.Size.Width, Size.Height));
+			Rectangle vsr = new Rectangle(new Point(Size.Width - VScroll.Size.Width, Ytop), new Size(VScroll.Size.Width, Size.Height - Ytop));
 			SetChildBounds(VScroll,vsr);
 			VScroll.UpperValue = FileCache.Count() - Ycapacity;
 
-			Ycapacity = (int) (Size.Height / Yesize);
+			Ycapacity = (int) ((Size.Height-Ytop) / Yesize);
 			Draw();
 		}
 		
@@ -282,5 +364,27 @@ namespace Krot.GUI
 			VScroll_ValueChanged(null, null);
 		}
 		#endregion
+	}
+
+	/// <summary>
+	/// Info about filelist table column
+	/// </summary>
+	internal struct ColumnInfo {
+		/// <summary>
+		/// The caption (title)
+		/// </summary>
+		public string Title;
+		/// <summary>
+		/// Width of the column, in px
+		/// </summary>
+		public int Width;
+		/// <summary>
+		/// Should ли the column fit to all available size (only 1 column at once can be such "fat")
+		/// </summary>
+		public bool Expand;
+		/// <summary>
+		/// The name of field (file/dir property or metadata), that should be placed under this column
+		/// </summary>
+		public string Content;
 	}
 }

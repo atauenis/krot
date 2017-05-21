@@ -79,5 +79,6 @@ namespace KrotAPI
 		public string AlternateFileName; //MS-DOS name or (if there are no 8.3 name) same as FileName
 		public char[] AccessRights; //UNIX-style access rights (3 or 9-char long, depending on possibilites of FS)
 		public Func<string,object> GetAdditionalField; //gets additional fields
+		public string FullPath;
 	}
 }

@@ -182,6 +182,7 @@ namespace KrotLocalFSPlugin
 				fd.LastWriteTime = di.LastWriteTime;
 				fd.LastAccessTime = di.LastAccessTime;
 				fd.AccessRights = GetUnixAccessRights(di);
+				fd.FullPath = Path;
 
 				return fd;			
 			}
@@ -197,6 +198,7 @@ namespace KrotLocalFSPlugin
 				fd.LastWriteTime = fi.LastWriteTime;
 				fd.LastAccessTime = fi.LastAccessTime;
 				fd.AccessRights = GetUnixAccessRights(fi);
+				fd.FullPath = Path;
 
 				return fd;
 			}
