@@ -43,6 +43,8 @@ namespace Krot.GUI
 		public KFileList(int fsid) {
 			this.BoundsChanged += KFileList_BoundsChanged;
 			this.ButtonPressed += KFileList_ButtonPressed;
+			this.MouseScrolled += KFileList_MouseScrolled;
+			this.KeyPressed += KFileList_KeyPressed;
 			VScroll.ValueChanged += VScroll_ValueChanged;
 
 			FSID = fsid;
@@ -53,6 +55,8 @@ namespace Krot.GUI
 			int retn = FS.SendCommand("fsCwd", args);
 
 			AddChild(VScroll);
+			CanGetFocus = true;
+			SetFocus();
 		}
 
 		public void PopulateList() {
@@ -82,10 +86,14 @@ namespace Krot.GUI
 			for (int i = Ystart; i < Ystart + Ycapacity; i++)
 			{
 				if(FileCache.Count > i)
-				DrawFile(FileCache[i]);
-				if(i == Pointer) {
-					//undone
+				if (i == Pointer)
+				{
+						GUI.Add(new DrawScript.dsRectangle(0, Ypos, Yesize, Size.Width - VScroll.Size.Width));
+						GUI.Add(new DrawScript.dsSetLineWidth(1));
+						GUI.Add(new DrawScript.dsSetLineDash(0, 1, 1));
+						GUI.Add(new DrawScript.dsStroke());
 				}
+				DrawFile(FileCache[i]);
 			}
 
 			QueueDraw();
@@ -164,6 +172,17 @@ namespace Krot.GUI
 			Ypos += Yesize;
 		}
 
+		/// <summary>
+		/// Scroll the scroll bar to the specifed position
+		/// </summary>
+		protected void ScrollTo(int To) {
+			int start = Ystart;
+			int stop = Ystart + Ycapacity-1;
+			if(To < start || To > stop) {
+				VScroll.Value = To;
+			}
+			VScroll_ValueChanged(null, null);
+		}
 
 		protected override void OnDraw(Context ctx, Rectangle dirtyRect)
 		{
@@ -179,13 +198,58 @@ namespace Krot.GUI
 			base.OnDraw(ctx, dirtyRect);
 		}
 
+		#region Event handlers
 		private void KFileList_ButtonPressed(object sender, ButtonEventArgs e)
 		{
 			switch (e.Button) {
 				case PointerButton.Left:
 					Pointer = Ystart + (int)(e.Y / Yesize);
-					return;
+					break;
 			}
+			Draw();
+		}
+
+
+		private void KFileList_KeyPressed(object sender, KeyEventArgs e)
+		{
+			switch(e.Key) {
+				case Key.Up:
+					if (Pointer > 0) Pointer--;
+					ScrollTo(Pointer);
+					break;
+				case Key.Down:
+					if (Pointer < FileCache.Count-1) Pointer++;
+					ScrollTo(Pointer);
+					break;
+				//todo: add more difficult pgup/pgdown handing, with jump to 1st/last row on current screen on first press
+				//not only go 1 page up and 1 page down. то есть, как в других файловых менеджерах.
+				case Key.PageUp:
+					int pup;
+					if (Ystart - Ycapacity >= 0) pup = Ystart - Ycapacity;
+					else pup = 0;
+					Pointer = pup;
+					ScrollTo(pup);
+					break;
+				case Key.PageDown:
+					int pdn;
+					pdn = Ystart;
+					if (Ystart + Ycapacity <= FileCache.Count - 1)
+					{	//if not near end
+						pdn += Ycapacity;
+						Pointer = pdn+Ycapacity-1;
+						ScrollTo(pdn);
+						break;
+					}
+					else Ystart = FileCache.Count - 1 - Ycapacity;
+					{
+						//if the end is not too far
+						Pointer = FileCache.Count - 1;
+						ScrollTo(pdn);
+					}
+					break;
+			}
+			e.Handled = true;
+			Draw();
 		}
 
 		protected void KFileList_BoundsChanged(object sender, EventArgs e)
@@ -203,5 +267,20 @@ namespace Krot.GUI
 			Ystart = (int)VScroll.Value;
 			Draw();
 		}
+
+
+		private void KFileList_MouseScrolled(object sender, MouseScrolledEventArgs e)
+		{
+			switch(e.Direction) {
+				case ScrollDirection.Up:
+					VScroll.Value--;
+					break;
+				case ScrollDirection.Down:
+					VScroll.Value++;
+					break;
+			}
+			VScroll_ValueChanged(null, null);
+		}
+		#endregion
 	}
 }
