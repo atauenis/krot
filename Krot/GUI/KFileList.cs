@@ -50,9 +50,9 @@ namespace Krot.GUI
 			VScroll.ValueChanged += VScroll_ValueChanged;
 
 			Columns.Add(new ColumnInfo() { Title="¶", Content = "krot.Icon", Width = 16 });
-			Columns.Add(new ColumnInfo() { Title="Файлово наме", Content="fs.FileName", Width=0, Expand = true});
-			Columns.Add(new ColumnInfo() { Title="Размер", Content="fs.Size", Width=100});
-			Columns.Add(new ColumnInfo() { Title="Дата", Content="fs.Date", Width=100});
+			Columns.Add(new ColumnInfo() { Title="Расталкивающий столбец", Content="fs.FileName", Width=0, Expand = true});
+			Columns.Add(new ColumnInfo() { Title="Размер", Content="fs.Size", Width=50});
+			Columns.Add(new ColumnInfo() { Title="Дата", Content="fs.DateTime", Width=110});
 			Columns.Add(new ColumnInfo() { Title="Атрибуты", Content="fs.Atribs", Width=100});
 
 			FSID = fsid;
@@ -203,7 +203,9 @@ namespace Krot.GUI
 		/// <summary>
 		/// Draw the FS entry on the screen
 		/// </summary>
-		/// <param name="fd"></param>
+		/// <param name="fd">FindData structure of file</param>
+		/// <param name="pointed">Is the file under pointer</param>
+		/// <param name="selected">Is the file under selection</param>
 		protected void DrawFile(FindData? fd, bool pointed, bool selected) {
 			if (fd == null) return;
 
@@ -213,12 +215,62 @@ namespace Krot.GUI
 				GUI.Add(new DrawScript.dsSetLineDash(0, 1, 1));
 				GUI.Add(new DrawScript.dsStroke());
 			}
-			//UNDONE: поддержка колонок сделана только по заголовкам, код запихивания контента в туда не сделан
-			if(selected)
-				GUI.Add(new DrawScript.dsTextLayout(fd.Value.FileName, 0, Ypos, new ColorTextAttribute() { Color = Colors.Red, StartIndex = 0, Count = fd.Value.FileName.Length}));
-			else
-				GUI.Add(new DrawScript.dsTextLayout(fd.Value.FileName, 0, Ypos));
+
+			int xpos = 0;
+			foreach(ColumnInfo ci in Columns) {
+				if(ci.Content.StartsWith("fs"))
+					DrawFileFS(fd, ci.Content, xpos, pointed, selected);
+				else
+					DrawFileMD(fd, ci.Content, xpos, pointed, selected);
+				xpos += ci.Width;
+			}
 			Ypos += Yesize;
+		}
+
+		/// <summary>
+		/// Draw FS entry info field using FS plug-in module power
+		/// </summary>
+		/// <param name="lind">Which column should be used</param>
+		protected void DrawFileFS(FindData? fd, string kind, int xpos, bool pointed, bool selected) {
+
+			string toprint="А хуй знает";
+			switch(kind) {
+				case "fs.FileName":
+					toprint = fd.Value.FileName;
+					break;
+				case "fs.Size":
+					toprint = PrepareSize(fd.Value);
+					break;
+				case "fs.Date":
+					toprint = fd.Value.LastWriteTime.ToLongDateString();
+					break;
+				case "fs.Time":
+					toprint = fd.Value.LastWriteTime.ToShortTimeString() ;
+					break;
+				case "fs.DateTime":
+					toprint = fd.Value.LastWriteTime.ToLocalTime().ToString();
+					break;
+				case "fs.Atribs":
+					toprint = fd.Value.FileAttributes.ToString();
+					break;
+			}
+			if(selected)
+				GUI.Add(new DrawScript.dsTextLayout(toprint, xpos, Ypos, new ColorTextAttribute() { Color = Colors.Red, StartIndex = 0, Count = toprint.Length}));
+			else
+				GUI.Add(new DrawScript.dsTextLayout(toprint, xpos, Ypos));
+		}
+
+		/// <summary>
+		/// Draw FS entry info field using metadata plug-in module or internal power
+		/// </summary>
+		/// <param name="kind">Which column should be used</param>
+		protected void DrawFileMD(FindData? fd, string kind, int xpos, bool pointed, bool selected) {
+		}
+
+		protected string PrepareSize(FindData fd) {
+			if (fd.FileAttributes == System.IO.FileAttributes.Directory) return "<DIR>";
+			else return fd.FileSize.ToString();
+			//todo: сделать вывод размера файлов по-человечески
 		}
 
 		/// <summary>
@@ -281,7 +333,6 @@ namespace Krot.GUI
 					Pointer = GetItemNo(e.X,e.Y);
 					break;
 				case PointerButton.Right: //RIGHT: set pointer & switch selection
-					//todo: добавить настройку: выбирать по правой кнопке или выбирать+ставить курсор
 					Pointer = GetItemNo(e.X, e.Y);
 					int itemno = GetItemNo(e.X,e.Y);
 					if (SelectedItems.Contains(itemno)) SelectedItems.Remove(itemno);
@@ -295,6 +346,14 @@ namespace Krot.GUI
 		private void KFileList_KeyPressed(object sender, KeyEventArgs e)
 		{
 			switch(e.Key) {
+				case Key.Home:
+					Pointer = 0;
+					ScrollTo(0);
+					break;
+				case Key.End:
+					Pointer = FileCache.Count - 1;
+					ScrollTo(Pointer);
+					break;
 				case Key.Up:
 					if (Pointer > 0) Pointer--;
 					ScrollTo(Pointer);
@@ -303,9 +362,13 @@ namespace Krot.GUI
 					if (Pointer < FileCache.Count-1) Pointer++;
 					ScrollTo(Pointer);
 					break;
-				//todo: add more difficult pgup/pgdown handing, with jump to 1st/last row on current screen on first press
-				//not only go 1 page up and 1 page down. то есть, как в других файловых менеджерах.
 				case Key.PageUp:
+					if(Pointer != Ystart) 
+					{
+						Pointer = Ystart;
+						break;
+					}
+					
 					int pup;
 					if (Ystart - Ycapacity >= 0) pup = Ystart - Ycapacity;
 					else pup = 0;
@@ -313,6 +376,11 @@ namespace Krot.GUI
 					ScrollTo(pup);
 					break;
 				case Key.PageDown:
+					if(Pointer != Ystart + Ycapacity-1) {
+						Pointer = Ystart + Ycapacity-1;
+						break;
+					}
+
 					int pdn;
 					pdn = Ystart;
 					if (Ystart + Ycapacity <= FileCache.Count - 1)
@@ -328,6 +396,11 @@ namespace Krot.GUI
 						Pointer = FileCache.Count - 1;
 						ScrollTo(pdn);
 					}
+					break;
+				case Key.Insert:
+					if (SelectedItems.Contains(Pointer)) SelectedItems.Remove(Pointer);
+					else SelectedItems.Add(Pointer);
+					if(Pointer != FileCache.Count-1) Pointer++;
 					break;
 			}
 			e.Handled = true;
