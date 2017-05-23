@@ -104,4 +104,11 @@ namespace Krot
 			}
 		}
 	}
+
+
+	internal class EventArgs<T> : EventArgs
+	{
+		public T Note;
+		public EventArgs(T note) { Note = note; }
+	}
 }

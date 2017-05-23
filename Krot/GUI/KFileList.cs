@@ -33,13 +33,14 @@ namespace Krot.GUI
 		protected int FSID;
 		protected PluginWrapper FS;
 		protected IEnumerator FSFileEnum;
-		protected List<FindData> FileCache = new List<FindData>();
+		public List<FindData> FileCache = new List<FindData>();
 		protected int CachePosition = -1;
 		protected int FSPosition = -1;
 
 		public event EventHandler<EventArgs> PointerMoved;
 		public event EventHandler<EventArgs> SelectionChanged;
-		public event EventHandler<EventArgs> FileOpenRequested;
+		public event EventHandler<EventArgs<FindData>> FileOpenRequested;
+		public event EventHandler<EventArgs<string>> ChangedWorkingDirectory;
 
 
 		public KFileList(int fsid) {
@@ -66,11 +67,13 @@ namespace Krot.GUI
 			CanGetFocus = true;
 			SetFocus();
 		}
+		
 
 		/// <summary>
 		/// Initialize cache, load and draw first portion of inodes
 		/// </summary>
 		public void PopulateList() {
+			ChangedWorkingDirectory?.Invoke(this, new EventArgs<string>(GWD()));
 			Ystart = 0;
 			VScroll.Value = 0;
 
@@ -268,7 +271,8 @@ namespace Krot.GUI
 		}
 
 		protected string PrepareSize(FindData fd) {
-			if (fd.FileAttributes == System.IO.FileAttributes.Directory) return "<DIR>";
+			if ((fd.FileAttributes & System.IO.FileAttributes.ReparsePoint) == System.IO.FileAttributes.ReparsePoint) return "<LINK>";
+			if (IsDirectory(fd)) return "<DIR>";
 			else return fd.FileSize.ToString();
 			//todo: сделать вывод размера файлов по-человечески
 		}
@@ -306,6 +310,43 @@ namespace Krot.GUI
 			base.OnDraw(ctx, dirtyRect);
 		}
 
+		/// <summary>
+		/// Get working directory
+		/// </summary>
+		/// <returns>The current working directory (local path)</returns>
+		protected string GWD() {
+			object resultg = null;
+			int retg = FS.SendCommand("fsGWD", null, ref resultg);
+			return resultg as string;
+		}
+
+		/// <summary>
+		/// Check the FS item about FS item's kind (is it a directory or not a directory)
+		/// </summary>
+		/// <returns>true if <paramref name="fd"/> is a directory; false if not</returns>
+		protected bool IsDirectory(FindData fd) {
+			return (fd.FileAttributes & System.IO.FileAttributes.Directory) == System.IO.FileAttributes.Directory;
+		}
+
+		/// <summary>
+		/// Change working directory
+		/// </summary>
+		public void CWD(string Path) {
+			try
+			{
+				Pointer = 0;
+				SelectedItems.Clear();
+				Dictionary<string, object> args = new Dictionary<string, object>();
+				args.Add("To", Path);
+				int retn = FS.SendCommand("fsCwd", args);
+				if (retn != 0) throw new Exception("Невозможно перейти в новый каталог: fsCwd To=" + Path + " вернул код " + retn);
+				PopulateList();
+			}catch(Exception ex) {
+				MessageDialog.ShowWarning(ex.Source, ex.Message);
+			}
+			Draw();
+		}
+
 		#region Event handlers
 		private void KFileList_ButtonPressed(object sender, ButtonEventArgs e)
 		{
@@ -315,13 +356,9 @@ namespace Krot.GUI
 				//DOUBLE CLICK : open dir/file
 				Pointer = GetItemNo(e.X,e.Y);
 				FindData curfile = FileCache[Pointer];
-				if (curfile.FileAttributes == System.IO.FileAttributes.Directory)
+				if (IsDirectory(curfile))
 				{
-					Dictionary<string, object> args = new Dictionary<string, object>();
-					args.Add("To", curfile.FullPath);
-					int retn = FS.SendCommand("fsCwd", args);
-					PopulateList();
-					Draw();
+					CWD(curfile.FullPath);
 				}else
 				{ }
 				return;
