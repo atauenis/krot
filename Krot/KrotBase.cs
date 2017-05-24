@@ -21,6 +21,9 @@ namespace Krot
 			Console.WriteLine("Krot has been launched.");
 			try
 			{
+				Console.WriteLine("Loading configuration: krot.ini...");
+				Kernel.LoadConfiguration();
+
 				Console.WriteLine("Loading GUI...");
 				
 				HostCallback hcb = (string Command, Dictionary<string, object> Arguments, out object Result) =>

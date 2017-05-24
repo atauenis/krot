@@ -48,6 +48,7 @@
     <Compile Include="GUI\KFileList.cs" />
     <Compile Include="GUI\KPanel.cs" />
     <Compile Include="GUI\MenuLoader.cs" />
+    <Compile Include="INIsharp.cs" />
     <Compile Include="KrotAPI.cs" />
     <Compile Include="KrotBase.cs" />
     <Compile Include="Kernel.cs" />
@@ -64,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="GUI\KROT_ENG.MNU" />
+    <None Include="krot.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="PluginDoc.md" />
   </ItemGroup>
   <ItemGroup>

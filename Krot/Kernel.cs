@@ -13,6 +13,8 @@ namespace Krot
 		public delegate void ProgressDelegate(int Percents, string Status, double MaxValue = 0, double CurValue = 0);
 		public delegate object RequestDelegate(int RequestType, string Question, params object[] Anwsers);
 
+		public static INIsharp ConfigMgr = new INIsharp();
+
 		/// <summary>
 		/// Save an occured exception into log (or report to console)
 		/// </summary>
@@ -116,6 +118,12 @@ namespace Krot
 		{
 			throw new NotImplementedException("");
 			return null;
+		}
+
+		internal static void LoadConfiguration() {
+			ConfigMgr.Load(new System.IO.FileStream("krot.ini", System.IO.FileMode.Open));
+			//on windows it should be %APPDATA%\Krot\krot.ini or PROGRAMDIR\krot.ini, on *nix ~/.krotrc
+			return;
 		}
 	}
 }
