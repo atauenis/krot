@@ -62,7 +62,7 @@ namespace Krot
 				//case "uiSetPanelLayout":
 				case "uiSetPanel":
 					//temporary code below. todo: add panel configuration
-					mw.Panels.Add(new KPanel(0));
+					mw.Panels.Add(new KPanel(0, Kernel.ConfigMgr.Sections["Panel1"]));
 					mw.Content = mw.Panels[0];
 					return 0;
 			}

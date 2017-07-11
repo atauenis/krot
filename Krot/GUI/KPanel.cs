@@ -23,9 +23,9 @@ namespace Krot.GUI
 		public KFileList KFL;
 		public Label StatsBar = new Label("выбрано КБ/всего КБ в штук/всего файлов, штук/всего каталогов");
 
-		public KPanel(int fsid) {
+		public KPanel(int fsid, Dictionary<string, string> options) {
 			BoundsChanged += KPanelUseful_BoundsChanged;
-			KFL = new KFileList(fsid);
+			KFL = new KFileList(fsid, options);
 			KFL.ExpandHorizontal = KFL.ExpandVertical = true;
 
 			ToolBarButton.Clicked += ToolBarButton_Clicked;

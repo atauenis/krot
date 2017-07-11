@@ -23,6 +23,7 @@ namespace Krot.GUI
 		public int Pointer; //pointer position
 		public List<int> SelectedItems = new List<int>(); //numbers of items that are under pointer
 		public List<ColumnInfo> Columns = new List<ColumnInfo>();
+		public Dictionary<string, string> Options = new Dictionary<string, string>();
 
 		protected int Ypos = 0; //V position in pixels
 		protected int Yesize = 16; //element V size in pixels
@@ -43,21 +44,17 @@ namespace Krot.GUI
 		public event EventHandler<EventArgs<string>> ChangedWorkingDirectory;
 
 
-		public KFileList(int fsid) {
+		public KFileList(int fsid, Dictionary<string, string> options) {
 			this.BoundsChanged += KFileList_BoundsChanged;
 			this.ButtonPressed += KFileList_ButtonPressed;
 			this.MouseScrolled += KFileList_MouseScrolled;
 			this.KeyPressed += KFileList_KeyPressed;
 			VScroll.ValueChanged += VScroll_ValueChanged;
 
-			Columns.Add(new ColumnInfo() { Title="¶", Content = "krot.Icon", Width = 16 });
-			Columns.Add(new ColumnInfo() { Title="Расталкивающий столбец", Content="fs.FileName", Width=0, Expand = true});
-			Columns.Add(new ColumnInfo() { Title="Размер", Content="fs.Size", Width=50});
-			Columns.Add(new ColumnInfo() { Title="Дата", Content="fs.DateTime", Width=110});
-			Columns.Add(new ColumnInfo() { Title="Атрибуты", Content="fs.Atribs", Width=100});
-
 			FSID = fsid;
 			FS = PluginManager.FSPlugins[FSID];
+			Options = options;
+			AddColumns();
 
 			Dictionary<string, object> args = new Dictionary<string, object>();
 			args.Add("To", @"D:\");
@@ -67,7 +64,24 @@ namespace Krot.GUI
 			CanGetFocus = true;
 			SetFocus();
 		}
-		
+
+		/// <summary>
+		/// Add columns from INI
+		/// </summary>
+		private void AddColumns()
+		{
+			for (int i = 0; i < Convert.ToInt32(Options["Columns"]); i++)
+			{
+				string colentry = Options["Column" + i];
+				string[] colinfo = colentry.Split(';');
+				string title, content; int width; bool expand = false;
+				title = colinfo[0];
+				content = colinfo[1];//todo: сделать перевод через языковые файлы
+				if (colinfo[2] == "fit") { width = 0; expand = true; }
+				else width = Convert.ToInt32(colinfo[2]);
+				Columns.Add(new ColumnInfo() { Title = title, Content = content, Width = width, Expand = expand });
+			}
+		}
 
 		/// <summary>
 		/// Initialize cache, load and draw first portion of inodes

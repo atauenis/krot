@@ -12,7 +12,7 @@ namespace Krot
 	public static class KrotBase
 	{
 		private static object nothing = null;
-		public const string KrotVersion = "0.1.1705"; //todo: replace with version from project properties
+		public const string KrotVersion = "0.1.1707"; //todo: replace with version from project properties
 
 		[STAThread]
 		private static void Main(string[] args) //the EXE's entry point

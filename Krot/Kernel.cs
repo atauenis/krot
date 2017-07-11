@@ -122,7 +122,9 @@ namespace Krot
 
 		internal static void LoadConfiguration() {
 			ConfigMgr.Load(new System.IO.FileStream("krot.ini", System.IO.FileMode.Open));
-			//on windows it should be %APPDATA%\Krot\krot.ini or PROGRAMDIR\krot.ini, on *nix ~/.krotrc
+			//Notes on further development:
+			//on windows the config file should be at %APPDATA%\Krot\krot.ini or PROGRAMDIR\krot.ini, on *nix at ~/.krotrc
+			//also, an default value storage should be supplied (for cases when there's no krot.ini at all)
 			return;
 		}
 	}
