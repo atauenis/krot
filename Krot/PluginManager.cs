@@ -46,7 +46,6 @@ namespace Krot
 							Console.Write("Debug print: ");
 							Kernel.krDebugPrint(Arguments);
 							return 0;
-							break;
 						case "krLoadFS":
 							//krLoadFS. Load the specifed filesystem plug-in module and attach it into FS Manager.
 							//Arguments:
@@ -55,7 +54,6 @@ namespace Krot
 							Kernel.krLoadFS(Arguments["File"].ToString(), Arguments["ClassName"].ToString());
 							Result = null;
 							return 0;
-							break;
 						case "krVer":
 							Result = "Krot version " + KrotBase.KrotVersion;
 							return 0;
@@ -67,7 +65,6 @@ namespace Krot
 					break;
 				case "ui": //a command for UI plugin
 					return UIPlugin.SendCommand(Command, Arguments);
-					break;
 				case "bc": //a broadcast command, send to all plugins
 					break;
 				case "fs": //a command for specific file system plugin
@@ -95,7 +92,6 @@ namespace Krot
 					Console.WriteLine("Result: {0}",retdata);
 					Result = retdata;
 					return retcode;
-					break;
 				case "ar": //a command for specific archive plugin
 					break;
 				case "ve": //a command for specific viewing/editing plugin

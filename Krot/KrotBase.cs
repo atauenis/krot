@@ -11,7 +11,7 @@ namespace Krot
 {
 	public static class KrotBase
 	{
-		private static object nothing = null;
+		//private static object nothing = null;
 		public const string KrotVersion = "0.1.1707"; //todo: replace with version from project properties
 
 		[STAThread]

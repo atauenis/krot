@@ -23,7 +23,7 @@ namespace Krot.GUI
 		{
 			public object tag;
 		}
-
+#pragma warning disable 0649
 		public class dsImage : GuiElement
 		{
 			public Image Image;
@@ -180,7 +180,6 @@ namespace Krot.GUI
 						Console.ForegroundColor = ConsoleColor.Gray;
 					}
 					throw new NotImplementedException("Данный тип элемента GUI ещё не поддерживается");
-					break;
 			}
 
 		}

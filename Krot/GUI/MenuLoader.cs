@@ -35,7 +35,6 @@ namespace Krot.GUI
 								break;
 							case 3://icon
 								throw new NotImplementedException();
-								break;
 					}
 				}
 				MenuItems.Add(MII);

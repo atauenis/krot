@@ -41,7 +41,7 @@ namespace KrotLocalFSPlugin
 		public int Talk(string CmdName, Dictionary<String, Object> Arguments, ref object Result)
 		{
 			Dictionary<String, Object> dic = new Dictionary<string, object> { { "From", "LocalFS" }, { "Command", CmdName }, { "Args", Arguments } };
-			object nothing;
+			//object nothing;
 			//HostCmd("krDebugPrint", dic, out nothing);
 
 			switch (CmdName.ToLower())
@@ -126,7 +126,6 @@ namespace KrotLocalFSPlugin
 			if (dirItemEnum.MoveNext())
 			{
 				string fsEntry = (string)dirItemEnum.Current;
-				//todo: сделать вывод свойств файла
 
 				object[] ToOut = new object[2];
 				ToOut[0] = dirItemEnum; //enumeration of directory items

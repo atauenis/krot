@@ -117,7 +117,6 @@ namespace Krot
 		private static object ShowRequest(int RequestType, string Question, params object[] Anwsers)
 		{
 			throw new NotImplementedException("");
-			return null;
 		}
 
 		internal static void LoadConfiguration() {
