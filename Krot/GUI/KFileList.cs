@@ -52,13 +52,13 @@ namespace Krot.GUI
 			VScroll.ValueChanged += VScroll_ValueChanged;
 
 			FSID = fsid;
-			FS = PluginManager.FSPlugins[FSID];
+			try
+			{
+				FS = PluginManager.FSPlugins[FSID];
+			}
+			catch (ArgumentOutOfRangeException) { throw new ArgumentOutOfRangeException("FSID"); }
 			Options = options;
 			AddColumns();
-
-			Dictionary<string, object> args = new Dictionary<string, object>();
-			args.Add("To", @"D:\");
-			int retn = FS.SendCommand("fsCwd", args);
 
 			AddChild(VScroll);
 			CanGetFocus = true;
@@ -284,6 +284,10 @@ namespace Krot.GUI
 		protected void DrawFileMD(FindData? fd, string kind, int xpos, bool pointed, bool selected) {
 		}
 
+		/// <summary>
+		/// Gets human-readable size of a file
+		/// </summary>
+		/// <returns></returns>
 		protected string PrepareSize(FindData fd) {
 			if ((fd.FileAttributes & System.IO.FileAttributes.ReparsePoint) == System.IO.FileAttributes.ReparsePoint) return "<LINK>";
 			if (IsDirectory(fd)) return "<DIR>";
@@ -328,7 +332,8 @@ namespace Krot.GUI
 		/// Get working directory
 		/// </summary>
 		/// <returns>The current working directory (local path)</returns>
-		protected string GWD() {
+		public string GWD() {
+			Console.WriteLine("Get w.dir. of " + FSID);
 			object resultg = null;
 			int retg = FS.SendCommand("fsGWD", null, ref resultg);
 			return resultg as string;
@@ -345,7 +350,8 @@ namespace Krot.GUI
 		/// <summary>
 		/// Change working directory
 		/// </summary>
-		public void CWD(string Path) {
+		public void CWD(string Path, bool CatchErrors = true) {
+			//Console.WriteLine("Change {0} to {1}", FSID, Path);
 			try
 			{
 				Pointer = 0;
@@ -356,7 +362,8 @@ namespace Krot.GUI
 				if (retn != 0) throw new Exception("Невозможно перейти в новый каталог: fsCwd To=" + Path + " вернул код " + retn);
 				PopulateList();
 			}catch(Exception ex) {
-				MessageDialog.ShowWarning(ex.Source, ex.Message);
+				MessageDialog.ShowWarning(ex.Message);
+				if (!CatchErrors) throw;
 			}
 			Draw();
 		}

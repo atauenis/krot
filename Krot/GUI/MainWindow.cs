@@ -15,10 +15,13 @@ namespace Krot.GUI
 	{
 		public new Menu MainMenu = new Menu();
 
+		public HPaned HP = new HPaned();
+
 		public List<KPanel> Panels = new List<KPanel>();
 
 		public MainWindow() {
 			Title = "Krot";
+			CloseRequested += MainWindow_CloseRequested;
 
 			Size = new Size(500, 500); //временно
 
@@ -27,6 +30,11 @@ namespace Krot.GUI
 
 			base.MainMenu = this.MainMenu;
 			PopulateMainMenu();
+		}
+
+		private void MainWindow_CloseRequested(object sender, CloseRequestedEventArgs args)
+		{
+			Application.Exit(); //stop xwt, not process enterily
 		}
 
 		/// <summary>

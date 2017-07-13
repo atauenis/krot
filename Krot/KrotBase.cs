@@ -38,8 +38,10 @@ namespace Krot
 
 				Kernel.krLoadFS(@"..\..\..\KrotLocalFSPlugin\bin\Debug\KrotLocalFSPlugin.dll", "KrotLocalFSPlugin.KrotLocalFSPlugin");
 				PluginManager.FSPlugins[0].Plugin.Callback = hcb;
+				Kernel.krLoadFS(@"..\..\..\KrotLocalFSPlugin\bin\Debug\KrotLocalFSPlugin.dll", "KrotLocalFSPlugin.KrotLocalFSPlugin");
+				PluginManager.FSPlugins[1].Plugin.Callback = hcb;
 
-				PluginManager.Launch("uiSetPanel", null); //временный код
+				PluginManager.Launch("uiSetLayout", null);
 				PluginManager.Launch("uiShow", null);
 
 				Console.WriteLine("Запущена консоль");

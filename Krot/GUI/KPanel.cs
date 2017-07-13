@@ -3,6 +3,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Xwt;
@@ -15,7 +16,7 @@ namespace Krot.GUI
 	/// </summary>
 	class KPanel : Widget
 	{
-		//KPanelBox (simply right or left part of window) will be created soon
+		//KPanelBox (simply right or left part of MainWindow) will be created soon
 		public Table Layout = new Table();
 		public HBox ToolBar = new HBox();
 		public TextEntry AdresBar = new TextEntry();//later should be replaced with a custom widget
@@ -23,10 +24,18 @@ namespace Krot.GUI
 		public KFileList KFL;
 		public Label StatsBar = new Label("выбрано КБ/всего КБ в штук/всего файлов, штук/всего каталогов");
 
+		/// <summary>
+		/// A last good path that had loaded with success
+		/// </summary>
+		string ValidPath;
+
 		public KPanel(int fsid, Dictionary<string, string> options) {
 			BoundsChanged += KPanelUseful_BoundsChanged;
 			KFL = new KFileList(fsid, options);
 			KFL.ExpandHorizontal = KFL.ExpandVertical = true;
+
+			AdresBar.Text = Directory.GetCurrentDirectory();
+			ValidPath = AdresBar.Text;
 
 			ToolBarButton.Clicked += ToolBarButton_Clicked;
 
@@ -54,8 +63,24 @@ namespace Krot.GUI
 
 		private void KPanelUseful_BoundsChanged(object sender, EventArgs e)
 		{
-			KFL.HeightRequest = 50; //both values are workaarounds for xwt
-			KFL.WidthRequest = 50; //bug, real size will be used instead
+			KFL.HeightRequest = 50; //both values are workarounds for xwt
+			KFL.WidthRequest = 50;  //bug, real size will be used instead
+		}
+
+		/// <summary>
+		/// Go to specifed directory
+		/// </summary>
+		public void GoTo(string path) {
+			try
+			{
+				KFL.CWD(path,false);
+				AdresBar.Text = path;
+				ValidPath = AdresBar.Text;
+			}
+			catch(Exception ex) {
+				if (ValidPath == path) ValidPath = Directory.GetCurrentDirectory();
+				GoTo(ValidPath);
+			}
 		}
 	}
 }

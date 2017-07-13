@@ -41,33 +41,45 @@ namespace Krot
 
 		public void Show() {
 			mw.Show();
-			mw.Panels[0].KFL.PopulateList();
 			Application.Run();
+		}
+
+		public void SetLayout() {
+			mw.Panels.Clear();
+			mw.HP.Panel1.Content = mw.HP.Panel2.Content = null;
+
+			mw.Panels.Add(new KPanel(0, Kernel.ConfigMgr.Sections["Panel1"]));
+			mw.Panels.Add(new KPanel(1, Kernel.ConfigMgr.Sections["Panel2"]));
+			mw.HP.Panel1.Content = mw.Panels[0];
+			mw.HP.Panel2.Content = mw.Panels[1];
+			mw.HP.Panel1.Shrink = true;
+			mw.HP.Panel2.Shrink = true;
+			mw.Content = mw.HP;
+
+			mw.Panels[0].GoTo(Kernel.ConfigMgr.Sections["Panels"]["1"]);
+			mw.Panels[1].GoTo(Kernel.ConfigMgr.Sections["Panels"]["2"]);
 		}
 
 		public int Talk(string CmdName, Dictionary<string, object> Arguments, ref object Result)
 		{
 			switch(CmdName) {
-				case "uiShow":
+				case "uiShow": //start XWT and show the MainWindow
+					Console.WriteLine("Show UI.");
 					Show();
 					return 0;
-				case "uiAbout":
+				case "uiAbout": //show About dialog
 					MessageDialog.ShowMessage("Файловый менеджер Крот.\nВерсия "+KrotBase.KrotVersion+".\n\nИспользуйте консоль для отладки ядра и плагинов Крота.");
 					return 0;
-				case "uiDebugConsole":
+				case "uiDebugConsole": //start debug console
 					Console.WriteLine("\nDebug Console is started. The GUI has temporarly frozen (due to XWT limitations).");
 					Console.WriteLine("Use 'return' command to return to GUI.");
 					KrotBase.CmdPrompt();
 					return 0;
-				//case "uiSetPanelLayout":
-				case "uiSetPanel":
-					//temporary code below. todo: add panel configuration
-					mw.Panels.Add(new KPanel(0, Kernel.ConfigMgr.Sections["Panel1"]));
-					mw.Content = mw.Panels[0];
+				case "uiSetLayout": //set UI widget layout
+					SetLayout();
 					return 0;
 			}
 			return 1;
-			//throw new NotImplementedException();
 		}
 	}
 }
